@@ -1,0 +1,7 @@
+# Supabase Configuration
+# Dapatkan URL dan Anon Key dari dashboard Supabase Anda: https://app.supabase.com
+# Copy file ini menjadi .env dan isi dengan nilai yang sesuai
+
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+

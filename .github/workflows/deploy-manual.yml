@@ -1,0 +1,54 @@
+name: Manual Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_type:
+        description: 'Type of deployment'
+        required: true
+        type: choice
+        options:
+          - frontend
+          - backend
+          - all
+
+jobs:
+  deploy:
+    name: Deploy ${{ github.event.inputs.deploy_type }}
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Deploy Frontend
+        if: github.event.inputs.deploy_type == 'frontend' || github.event.inputs.deploy_type == 'all'
+        run: |
+          npm ci
+          npm run build
+          vercel --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+      - name: Deploy Backend
+        if: github.event.inputs.deploy_type == 'backend' || github.event.inputs.deploy_type == 'all'
+        run: |
+          cd backend
+          npm ci
+          npm run build
+          vercel --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+

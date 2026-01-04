@@ -1,0 +1,174 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* Color Palette - Modern Earthy Tone */
+    --color-primary: #164A41;
+    --color-secondary: #4D774E;
+    --color-tertiary: #9DC88D;
+    --color-accent: #F1B24A;
+    --color-neutral-light: #FFFFFF;
+    --color-text-primary: #2C3E50;
+    --color-text-secondary: #7F8C8D;
+    --color-success: #4D774E;
+    --color-error: #E74C3C;
+    --color-warning: #F39C12;
+    --color-info: #3498DB;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    background-color: var(--color-neutral-light);
+    color: var(--color-text-primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  /* Typography */
+  h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--color-primary);
+  }
+
+  h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--color-primary);
+  }
+
+  h3 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--color-primary);
+  }
+
+  h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--color-text-primary);
+  }
+
+  h5 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--color-text-primary);
+  }
+
+  p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+  }
+
+  /* Custom Classes */
+  .btn-primary {
+    @apply bg-accent hover:bg-accent/90 text-white font-semibold rounded-full px-8 py-3 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5;
+    /* Ensure white text on accent background for good contrast */
+    color: #FFFFFF !important;
+  }
+
+  .btn-secondary {
+    @apply bg-primary hover:bg-primary/90 text-white font-semibold rounded-full px-8 py-3 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5;
+    /* Ensure white text on primary background for good contrast */
+    color: #FFFFFF !important;
+  }
+
+  .btn-outline {
+    @apply border-2 border-primary text-primary hover:bg-primary hover:text-white rounded-full px-8 py-3 transition-all duration-300 font-semibold;
+    /* Ensure primary color text on transparent background, white on hover */
+    color: var(--color-primary) !important;
+  }
+  
+  .btn-outline:hover {
+    color: #FFFFFF !important;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden;
+  }
+
+  .card-hover {
+    @apply hover:-translate-y-1 hover:shadow-2xl;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all;
+  }
+
+  .badge {
+    @apply px-3 py-1 rounded-full text-sm inline-flex items-center gap-1;
+  }
+
+  .badge-success {
+    background-color: color-mix(in srgb, var(--color-success) 10%, transparent);
+    color: var(--color-success);
+  }
+
+  .badge-warning {
+    background-color: color-mix(in srgb, var(--color-warning) 10%, transparent);
+    color: var(--color-warning);
+  }
+
+  .badge-error {
+    background-color: color-mix(in srgb, var(--color-error) 10%, transparent);
+    color: var(--color-error);
+  }
+
+  .badge-info {
+    background-color: color-mix(in srgb, var(--color-info) 10%, transparent);
+    color: var(--color-info);
+  }
+
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}
+
+/* Custom utilities */
+@layer utilities {
+  .text-primary {
+    color: var(--color-primary);
+  }
+  
+  .text-secondary {
+    color: var(--color-secondary);
+  }
+  
+  .text-accent {
+    color: var(--color-accent);
+  }
+  
+  .bg-primary {
+    background-color: var(--color-primary);
+  }
+  
+  .bg-secondary {
+    background-color: var(--color-secondary);
+  }
+  
+  .bg-tertiary {
+    background-color: var(--color-tertiary);
+  }
+  
+  .bg-accent {
+    background-color: var(--color-accent);
+  }
+  
+  .bg-neutral-light {
+    background-color: var(--color-neutral-light);
+  }
+  
+  .border-primary {
+    border-color: var(--color-primary);
+  }
+}
