@@ -94,6 +94,8 @@ import type {
   Admin,
   Unit,
   UnitPhoto,
+  UnitBooking,
+  UnitBookingPayment,
   Payment,
   PaymentTransaction,
   Facility,
@@ -119,6 +121,8 @@ export type {
   Admin,
   Unit,
   UnitPhoto,
+  UnitBooking,
+  UnitBookingPayment,
   Payment,
   PaymentTransaction,
   Facility,
@@ -165,6 +169,16 @@ export type Database = {
         Row: UnitPhoto;
         Insert: Omit<UnitPhoto, 'id' | 'created_at'>;
         Update: Partial<Omit<UnitPhoto, 'id' | 'created_at'>>;
+      };
+      unit_bookings: {
+        Row: UnitBooking;
+        Insert: Omit<UnitBooking, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Omit<UnitBooking, 'id' | 'created_at'>>;
+      };
+      unit_booking_payments: {
+        Row: UnitBookingPayment;
+        Insert: Omit<UnitBookingPayment, 'id' | 'created_at'>;
+        Update: Partial<Omit<UnitBookingPayment, 'id' | 'created_at'>>;
       };
       payments: {
         Row: Payment;

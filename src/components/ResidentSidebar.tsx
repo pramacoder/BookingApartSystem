@@ -23,6 +23,7 @@ export function ResidentSidebar() {
     { label: 'My Unit', path: '/resident/unit', icon: Home },
     { label: 'Payment Center', path: '/resident/payment', icon: CreditCard },
     { label: 'Facility Booking', path: '/resident/bookings', icon: CalendarDays },
+    { label: 'Chat', path: '/resident/chat', icon: MessageSquare },
     { label: 'Announcements', path: '/resident/announcements', icon: Bell },
     { label: 'Complaints', path: '/resident/complaints', icon: MessageSquare },
     { label: 'Profile', path: '/resident/profile', icon: User },

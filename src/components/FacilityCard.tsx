@@ -1,3 +1,4 @@
+import React from 'react';
 import { Clock, Users, ArrowRight, Wrench } from 'lucide-react';
 import { Facility, formatCurrency } from '../data/mockData';
 import { Link } from 'react-router-dom';

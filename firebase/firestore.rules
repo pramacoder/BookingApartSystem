@@ -1,0 +1,76 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if user is the owner
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Helper function to check if user is admin
+    // Note: This requires checking against Supabase. For now, we'll use a simple approach.
+    // In production, you might want to sync admin status to Firebase or use Cloud Functions
+    function isAdmin() {
+      return isAuthenticated() && 
+             request.auth.token.admin == true;
+    }
+    
+    // Chat rooms: Residents can access their own chat, admins can access all chats
+    match /chats/{chatId} {
+      // Allow read if user is the resident (chatId starts with their user ID) or is admin
+      allow read: if isAuthenticated() && 
+                     (chatId.matches('chat_.*') && 
+                      resource.data.residentId == request.auth.uid) ||
+                     isAdmin();
+      
+      // Allow create if user is the resident
+      allow create: if isAuthenticated() && 
+                       request.resource.data.residentId == request.auth.uid;
+      
+      // Allow update if user is admin or resident (for lastMessage updates)
+      allow update: if isAuthenticated() && 
+                       (isAdmin() || 
+                        resource.data.residentId == request.auth.uid);
+      
+      // Messages subcollection
+      match /messages/{messageId} {
+        // Allow read if user is in the chat room
+        allow read: if isAuthenticated() && 
+                       (get(/databases/$(database)/documents/chats/$(chatId)).data.residentId == request.auth.uid ||
+                        isAdmin());
+        
+        // Allow create if user is resident or admin
+        allow create: if isAuthenticated() && 
+                         (request.resource.data.senderId == request.auth.uid &&
+                          (request.resource.data.senderRole == 'resident' || 
+                           request.resource.data.senderRole == 'admin'));
+        
+        // Allow update to mark as read
+        allow update: if isAuthenticated() && 
+                         (resource.data.senderId != request.auth.uid ||
+                          isAdmin());
+      }
+    }
+    
+    // Notifications: Users can only access their own notifications
+    match /notifications/{userId}/notifications/{notificationId} {
+      allow read: if isAuthenticated() && isOwner(userId);
+      allow create: if isAuthenticated() && 
+                       (request.resource.data.userId == userId ||
+                        isAdmin()); // Allow admin to create notifications for users
+      allow update: if isAuthenticated() && isOwner(userId);
+      allow delete: if isAuthenticated() && isOwner(userId);
+    }
+    
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+

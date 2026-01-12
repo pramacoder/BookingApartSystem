@@ -1,50 +1,237 @@
-import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { mockPayments, formatCurrency, currentUser } from '../../data/mockData';
-import { CreditCard, Building2, Calendar, Tag, Shield, ArrowRight, Check } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { formatCurrency } from '../../data/mockData';
+import { CreditCard, Building2, Calendar, Tag, Shield, ArrowRight, Check, Loader2, AlertCircle, Home } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
+import { getUnitBookingById, getUnitWithPhotos, createPayment, updatePaymentStatus, updateUnitBooking, updateResident, updateUnit } from '../../lib/database';
+import { createNotification } from '../../lib/firestore';
+import type { UnitBooking, Unit } from '../../lib/types/database';
 
 export function MakePayment() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { user } = useAuth();
+  
   const [paymentMethod, setPaymentMethod] = useState<'credit' | 'bank' | 'ewallet'>('credit');
   const [promoCode, setPromoCode] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Check if this is a unit booking payment
+  const isUnitBooking = location.pathname.includes('/unit-booking/');
+  const [unitBooking, setUnitBooking] = useState<UnitBooking | null>(null);
+  const [unit, setUnit] = useState<Unit | null>(null);
+  const [regularPayment, setRegularPayment] = useState<any>(null);
 
-  const payment = mockPayments.find(p => p.id === id);
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
 
-  if (!payment) {
-    return (
-      <div className="card p-12 text-center">
-        <p className="text-text-secondary mb-4">Payment not found</p>
-        <button onClick={() => navigate('/resident/payment')} className="btn-primary">
-          Back to Payment Center
-        </button>
-      </div>
-    );
-  }
+    if (isUnitBooking && id) {
+      loadUnitBookingPayment(id);
+    } else if (id) {
+      // Load regular payment (existing flow)
+      loadRegularPayment(id);
+    } else {
+      setError('Payment ID tidak ditemukan');
+      setLoading(false);
+    }
+  }, [id, isUnitBooking, user, navigate]);
 
-  const adminFee = 2500;
-  const discount = 0;
-  const total = payment.amount + adminFee - discount;
+  const loadUnitBookingPayment = async (bookingId: string) => {
+    setLoading(true);
+    setError(null);
 
-  const handleProceedPayment = () => {
+    try {
+      const { data: booking, error: bookingError } = await getUnitBookingById(bookingId);
+      if (bookingError || !booking) {
+        throw new Error('Unit booking tidak ditemukan');
+      }
+
+      // Verify booking belongs to user's resident
+      if (booking.resident_id && user) {
+        // This check might need adjustment based on your auth setup
+        // For now, we'll proceed
+      }
+
+      setUnitBooking(booking);
+
+      // Load unit details
+      const { data: unitData, error: unitError } = await getUnitWithPhotos(booking.unit_id);
+      if (!unitError && unitData) {
+        setUnit(unitData.unit);
+      }
+
+      setLoading(false);
+    } catch (err: any) {
+      console.error('Error loading unit booking:', err);
+      setError(err.message || 'Gagal memuat data booking');
+      setLoading(false);
+    }
+  };
+
+  const loadRegularPayment = async (paymentId: string) => {
+    // TODO: Load regular payment from Supabase
+    // For now, keep existing mock data behavior
+    setRegularPayment({ id: paymentId, amount: 0 });
+    setLoading(false);
+  };
+
+  const handleProceedPayment = async () => {
     if (!agreedToTerms) {
-      alert('Please agree to terms and conditions');
+      setError('Silakan setujui syarat & ketentuan terlebih dahulu');
       return;
     }
 
     setIsProcessing(true);
+    setError(null);
 
-    // Simulate redirect to Midtrans
-    setTimeout(() => {
-      // Randomly simulate success, failed, or pending
-      const outcomes = ['success', 'failed', 'pending'];
-      const randomOutcome = outcomes[Math.floor(Math.random() * outcomes.length)];
-      
-      navigate(`/payment/${randomOutcome}?order_id=${payment.invoiceNumber}`);
+    try {
+      if (isUnitBooking && unitBooking) {
+        await handleUnitBookingPayment();
+      } else {
+        await handleRegularPayment();
+      }
+    } catch (err: any) {
+      console.error('Payment error:', err);
+      setError(err.message || 'Gagal memproses pembayaran. Silakan coba lagi.');
+      setIsProcessing(false);
+    }
+  };
+
+  const handleUnitBookingPayment = async () => {
+    if (!unitBooking || !user) return;
+
+    // Create payment record in Supabase
+    const residentId = unitBooking.resident_id;
+    
+    const { data: paymentRecord, error: paymentError } = await createPayment({
+      resident_id: residentId,
+      unit_id: unitBooking.unit_id,
+      payment_type: 'unit_booking',
+      amount: unitBooking.rent_amount,
+      admin_fee: unitBooking.admin_fee,
+      discount: 0,
+      penalty: 0,
+      due_date: new Date().toISOString().split('T')[0],
+    });
+
+    if (paymentError || !paymentRecord) {
+      throw new Error('Gagal membuat record pembayaran');
+    }
+
+    // Simulate payment processing (in production, integrate with Midtrans)
+    // For now, simulate success after 2 seconds
+    setTimeout(async () => {
+      try {
+        // Update unit booking status
+        await updateUnitBooking(unitBooking.id, {
+          status: 'confirmed',
+          payment_status: 'paid',
+          confirmed_at: new Date().toISOString(),
+        });
+
+        // Assign unit to resident
+        await updateResident(residentId, {
+          unit_id: unitBooking.unit_id,
+          status: 'active',
+          unit_booking_id: unitBooking.id,
+          contract_start: unitBooking.start_date,
+          contract_end: unitBooking.end_date,
+          move_in_date: new Date().toISOString().split('T')[0],
+        });
+
+        // Update unit status to occupied
+        await updateUnit(unitBooking.unit_id, {
+          status: 'occupied',
+        });
+
+        // Create notification for key pickup
+        try {
+          await createNotification(
+            user.id,
+            'key_pickup',
+            'Kunci Unit Siap Diambil',
+            `Unit ${unit?.unit_number || ''} telah ditetapkan untuk Anda. Silakan ambil kunci unit di kantor administrasi.`,
+            {
+              unit_id: unitBooking.unit_id,
+              unit_number: unit?.unit_number,
+              booking_id: unitBooking.id,
+            }
+          );
+        } catch (notifError) {
+          console.error('Error creating notification:', notifError);
+          // Continue even if notification fails
+        }
+
+        // Update payment status
+        await updatePaymentStatus(paymentRecord.id, 'paid', new Date().toISOString().split('T')[0]);
+
+        // Redirect to success page
+        navigate(`/payment/success?order_id=${unitBooking.booking_number}&type=unit_booking`);
+      } catch (err: any) {
+        console.error('Error completing payment:', err);
+        setError('Pembayaran berhasil, namun terjadi error saat memproses. Silakan hubungi admin.');
+        setIsProcessing(false);
+      }
     }, 2000);
   };
+
+  const handleRegularPayment = async () => {
+    // TODO: Implement regular payment flow
+    // For now, simulate redirect
+    setTimeout(() => {
+      const outcomes = ['success', 'failed', 'pending'];
+      const randomOutcome = outcomes[Math.floor(Math.random() * outcomes.length)];
+      navigate(`/payment/${randomOutcome}?order_id=${id}`);
+    }, 2000);
+  };
+
+  // Get payment details based on type
+  const payment = isUnitBooking ? {
+    invoiceNumber: unitBooking?.booking_number || '',
+    amount: unitBooking?.total_amount || 0,
+    unitNumber: unit?.unit_number || '',
+    dueDate: new Date().toLocaleDateString('id-ID'),
+    description: `Pembayaran booking unit ${unit?.unit_number || ''} (${unitBooking?.booking_duration_type || ''})`,
+  } : regularPayment;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-4" />
+          <p className="text-text-secondary">Memuat data pembayaran...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error && !payment) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full card p-8 text-center">
+          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h2 className="text-primary mb-2">Error</h2>
+          <p className="text-text-secondary mb-6">{error}</p>
+          <button onClick={() => navigate('/resident/payment')} className="btn-primary">
+            Kembali ke Payment Center
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!payment) return null;
+
+  const adminFee = isUnitBooking ? (unitBooking?.admin_fee || 2500) : 2500;
+  const discount = 0;
+  const total = payment.amount + adminFee - discount;
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">

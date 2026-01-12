@@ -9,7 +9,8 @@ export type AdminRole = 'super_admin' | 'admin' | 'manager' | 'staff';
 export type UnitType = 'studio' | '1br' | '2br' | '3br' | '4br' | 'penthouse';
 export type UnitOrientation = 'north' | 'south' | 'east' | 'west' | 'northeast' | 'northwest' | 'southeast' | 'southwest';
 export type UnitStatus = 'available' | 'occupied' | 'maintenance' | 'reserved';
-export type PaymentType = 'rent' | 'utilities' | 'maintenance' | 'deposit' | 'penalty' | 'facility_booking' | 'other';
+export type PaymentType = 'rent' | 'utilities' | 'maintenance' | 'deposit' | 'penalty' | 'facility_booking' | 'unit_booking' | 'other';
+export type BookingDurationType = 'weekly' | 'monthly' | 'yearly';
 export type PaymentStatus = 'pending' | 'paid' | 'overdue' | 'cancelled' | 'refunded';
 export type PaymentMethod = 'bank_transfer' | 'credit_card' | 'debit_card' | 'e_wallet' | 'cash' | 'midtrans';
 export type TransactionStatus = 'pending' | 'processing' | 'success' | 'failed' | 'cancelled' | 'expired';
@@ -49,6 +50,7 @@ export interface Resident {
   id: string;
   user_id: string;
   unit_id?: string;
+  unit_booking_id?: string;
   emergency_contact_name?: string;
   emergency_contact_phone?: string;
   move_in_date?: string;
@@ -56,6 +58,7 @@ export interface Resident {
   contract_end?: string;
   status: ResidentStatus;
   deposit_amount: number;
+  key_collected_at?: string;
   created_at: string;
   updated_at: string;
 }
@@ -78,7 +81,9 @@ export interface Unit {
   bathrooms: number;
   orientation?: UnitOrientation;
   monthly_rent: number;
-  yearly_booking_price?: number;
+  weekly_rent?: number;
+  yearly_rent?: number;
+  yearly_booking_price?: number; // Deprecated, use yearly_rent
   deposit_required: number;
   features: any[];
   floor_plan_url?: string;
@@ -298,6 +303,34 @@ export interface Session {
   device_info?: string;
   last_activity: string;
   expires_at: string;
+  created_at: string;
+}
+
+export interface UnitBooking {
+  id: string;
+  booking_number: string;
+  resident_id: string;
+  unit_id: string;
+  booking_duration_type: BookingDurationType;
+  start_date: string;
+  end_date: string;
+  rent_amount: number;
+  deposit_amount: number;
+  admin_fee: number;
+  total_amount: number;
+  payment_status: PaymentStatus;
+  status: BookingStatus;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+  cancelled_at?: string;
+  confirmed_at?: string;
+}
+
+export interface UnitBookingPayment {
+  id: string;
+  unit_booking_id: string;
+  payment_id: string;
   created_at: string;
 }
 

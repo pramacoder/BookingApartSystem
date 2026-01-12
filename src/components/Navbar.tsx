@@ -1,6 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Building2, Grid3x3, ImageIcon, Phone, LogIn, UserPlus, User, Menu, X } from 'lucide-react';
 import { useState } from 'react';
+import { useAuth } from '../hooks/useAuth';
+import { NotificationBell } from './NotificationBell';
 
 interface NavbarProps {
   userRole?: 'guest' | 'resident' | 'admin';
@@ -10,6 +12,10 @@ interface NavbarProps {
 export function Navbar({ userRole = 'guest', userName }: NavbarProps) {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user } = useAuth();
+  
+  // Use auth data if available, otherwise use props
+  const actualUserRole = user ? (userRole === 'admin' ? 'admin' : userRole === 'resident' ? 'resident' : 'guest') : 'guest';
 
   const publicMenuItems = [
     { label: 'Home', path: '/', icon: Home },
@@ -76,15 +82,20 @@ export function Navbar({ userRole = 'guest', userName }: NavbarProps) {
                 </Link>
               </>
             ) : (
-              <Link
-                to={userRole === 'admin' ? '/admin/dashboard' : '/resident/dashboard'}
-                className="flex items-center gap-3 px-4 py-2 rounded-full hover:bg-tertiary/20 transition-colors"
-              >
-                <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-                  <User className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-text-primary">{userName}</span>
-              </Link>
+              <>
+                {(actualUserRole === 'resident' || actualUserRole === 'admin') && (
+                  <NotificationBell />
+                )}
+                <Link
+                  to={actualUserRole === 'admin' ? '/admin/dashboard' : '/resident/dashboard'}
+                  className="flex items-center gap-3 px-4 py-2 rounded-full hover:bg-tertiary/20 transition-colors"
+                >
+                  <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+                    <User className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="text-text-primary">{userName || 'User'}</span>
+                </Link>
+              </>
             )}
           </div>
 
