@@ -1,6 +1,28 @@
-# 🏢 GreenView Apartment Management System
+<p align="center">
+  <img src="public/logo.png" width="90" alt="GreenView Logo" />
+</p>
 
-Sistem Manajemen Apartemen modern berbasis web (*Full-Stack*) yang dibangun dengan **React (Vite) + TypeScript + Tailwind CSS** dan menggunakan **PostgreSQL (Supabase)** sebagai satu-satunya sistem database utama, serta terintegrasi dengan **Midtrans Payment Gateway (Snap)** untuk transaksi pembayaran digital.
+<h1 align="center">GreenView Apartment Management System</h1>
+
+<p align="center">
+  Sistem Manajemen Apartemen modern berbasis web (<em>Full-Stack</em>) yang dibangun dengan <strong>React (Vite) + TypeScript + Tailwind CSS</strong>, menggunakan <strong>PostgreSQL (Supabase)</strong> sebagai satu-satunya database utama, serta terintegrasi dengan <strong>Midtrans Payment Gateway (Snap)</strong> untuk transaksi pembayaran digital.
+</p>
+
+---
+
+## 📸 Preview Tampilan Aplikasi (Screenshots)
+
+### 1. Katalog Unit & Filter Apartemen
+Halaman publik bagi calon penghuni untuk menelusuri katalog unit apartemen lengkap dengan filter tipe, lantai, dan harga sewa.
+![Katalog Unit Apartemen](docs/screenshots/catalogue.png)
+
+### 2. Portal Penghuni - Detail Unit & Kontrak Sewa
+Halaman *"My Unit"* yang menampilkan informasi lengkap unit yang sedang disewa, spesifikasi ruangan, status aktif, dan masa kontrak.
+![Portal Penghuni - My Unit](docs/screenshots/my-unit.png)
+
+### 3. Halaman Pembayaran Sewa (Midtrans Payment Gateway)
+Pembayaran sewa unit dan iuran pemeliharaan dengan pilihan metode kartu kredit/debit, transfer bank virtual account, dan e-wallet.
+![Pembayaran Sewa Unit](docs/screenshots/payment.png)
 
 ---
 
@@ -128,6 +150,11 @@ BookingApartSystem/
 │   ├── package.json
 │   ├── README.md
 │   └── server.js
+├── docs/
+│   └── screenshots/           # Screenshot aplikasi untuk dokumentasi GitHub
+│       ├── catalogue.png
+│       ├── my-unit.png
+│       └── payment.png
 ├── public/                    # Aset statis & logo utama website
 │   └── logo.png
 ├── src/
