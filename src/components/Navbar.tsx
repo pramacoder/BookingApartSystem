@@ -1,3 +1,4 @@
+import { Logo } from './Logo';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Building2, Grid3x3, ImageIcon, Phone, LogIn, UserPlus, User, Menu, X } from 'lucide-react';
 import { useState } from 'react';
@@ -34,15 +35,7 @@ export function Navbar({ userRole = 'guest', userName }: NavbarProps) {
       <div className="container-custom">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
-              <Building2 className="w-7 h-7 text-white" />
-            </div>
-            <div>
-              <div className="text-xl text-primary">GreenView</div>
-              <div className="text-xs text-text-secondary">Apartment</div>
-            </div>
-          </Link>
+          <Logo size="md" subtitle="Apartment" to="/" />
 
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center gap-8">

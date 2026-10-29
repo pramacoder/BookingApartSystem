@@ -1,90 +1,153 @@
-# Apartment Management Website
+# 🏢 GreenView Apartment Management System
 
-This is a code bundle for Apartment Management Website. The original project is available at https://www.figma.com/design/Z4qFo8niq7670lMudsNJ6N/Apartment-Management-Website.
+Sistem Manajemen Apartemen modern berbasis web (*Full-Stack*) yang dibangun dengan **React (Vite) + TypeScript + Tailwind CSS** dan menggunakan **PostgreSQL (Supabase)** sebagai satu-satunya sistem database utama, serta terintegrasi dengan **Midtrans Payment Gateway (Snap)** untuk transaksi pembayaran digital.
 
-## Setup Supabase
+---
 
-Project ini sudah terintegrasi dengan Supabase untuk backend dan authentication. Untuk menggunakan Supabase:
+## 🌟 Fitur Utama
 
-1. Buat project baru di [Supabase](https://app.supabase.com)
-2. Dapatkan URL dan Anon Key dari dashboard project Anda
-3. Buat file `.env` di root project dengan konten berikut:
+### 1. Portal Publik (Calon Penghuni)
+- **Beranda & Profil Apartemen**: Showcase unit unggulan, fasilitas modern, denah lantai, dan testimoni.
+- **Katalog Unit**: Pencarian dan filter unit apartemen berdasarkan tipe (Studio, 1BR, 2BR), harga sewa, dan lantai.
+- **Booking Unit Online**: Reservasi unit dengan pilihan durasi sewa (Mingguan, Bulanan, Tahunan) dan kalkulasi otomatis deposit sewa.
+- **Direktori Fasilitas & Galeri**: Eksplorasi fasilitas (Gym, Kolam Renang, Co-working Space, Function Hall) dan galeri foto interior/eksterior.
+- **Halaman Kontak & Lokasi**: Formulir pesan dan peta lokasi.
 
+### 2. Portal Penghuni (Resident Portal)
+- **Resident Dashboard**: Informasi unit aktif, ringkasan tagihan berjalan, tiket komplain, dan pengumuman manajemen.
+- **Unit Saya (My Unit)**: Detail spesifikasi unit, masa kontrak, status sewa, kontak darurat, dan informasi pengambilan kunci unit.
+- **Payment Center**: Riwayat invoice, status pembayaran (Pending, Paid, Overdue), dan pembayaran sewa serta IPL.
+- **Reservasi Fasilitas**: Jadwal ketersediaan fasilitas bersama, tarif per jam, dan pembuatan booking fasilitas baru dengan modal interaktif.
+- **Live Chat dengan Pengelola**: Kirim dan terima pesan secara *real-time* ke pihak Customer Service / Admin Apartemen.
+- **Komplain & Layanan Maintenance**: Pengajuan tiket kerusakan unit (AC, pipa, kartu akses) lengkap dengan status penanganan (*In Progress*, *Resolved*).
+- **Pengumuman Manajemen**: Notifikasi kegiatan apartemen, jadwal pembersihan, dan pemeliharaan fasilitas.
+- **Profil & Keamanan Akun**: Pengaturan profil penghuni dan perubahan password.
+
+### 3. Portal Admin (Property Management)
+- **Admin Dashboard**: Statistik okupansi gedung, grafik pendapatan bulanan, daftar komplain mendesak, dan aktivitas transaksi terbaru.
+- **Manajemen Unit**: Tambah, edit, dan kelola status unit apartemen (*Available*, *Occupied*, *Maintenance*).
+- **Direktori Penghuni**: Manajemen data penyewa aktif, unit yang dihuni, tanggal masa kontrak, dan informasi kontak darurat.
+- **Monitoring Pembayaran**: Manajemen seluruh tagihan dan invoice, status verifikasi Midtrans, dan laporan keuangan.
+- **Admin Live Chat**: Multitasking room chat dengan seluruh penghuni apartemen.
+- **Manajemen Pengumuman & Konten Galeri**: Publikasi pengumuman baru dan upload dokumentasi kegiatan.
+
+---
+
+## 🛠️ Arsitektur Teknologi & Database
+
+### 1. Standardisasi Satu Database: PostgreSQL (Supabase)
+Sistem ini menggunakan **100% PostgreSQL** untuk seluruh penyimpanan data:
+- Seluruh dependensi legacy Firebase telah dihapus sepenuhnya (*No Firebase*), menjaga ukuran bundle ringan dan performa kencang.
+- Fitur percakapan real-time kini berjalan di atas tabel PostgreSQL (`chat_rooms` & `chat_messages`) memanfaatkan Supabase Realtime Channels.
+- File migrasi database berada pada folder `supabase/migrations/`:
+  1. `001_initial_schema.sql`: Skema dasar pengguna, unit, pembayaran, dan komplain.
+  2. `002_unit_booking_schema.sql`: Skema durasi booking unit apartemen dan kontrak.
+  3. `003_chat_schema.sql`: Skema percakapan chat resident-admin dan pesan real-time.
+
+### 2. Integrasi Pembayaran Midtrans Snap
+- Frontend terhubung dengan **Midtrans Snap SDK** untuk menampilkan popup metode pembayaran lengkap (Transfer Bank Virtual Account, Kartu Kredit, GoPay, QRIS, dll).
+- Disediakan backend server Express.js di folder `backend/` untuk menghasilkan Snap Token secara aman menggunakan `SERVER_KEY` rahasia serta menerima Webhook Notification.
+- Mendukung simulasi instan di lingkungan pengujian lokal (*Sandbox*).
+
+### 3. Optimasi Gambar Otomatis (WebP on-the-fly)
+- Dilengkapi modul `src/lib/imageOptimizer.ts` dan komponen `ImageWithFallback.tsx`.
+- Gambar format JPG/PNG secara otomatis disajikan dalam format **WebP** melalui Image CDN (Unsplash engine / `wsrv.nl` CDN proxy) sebelum di-download pengguna, menghemat bandwidth hingga 50-70%.
+
+---
+
+## 🚀 Panduan Menjalankan Sistem
+
+### Persyaratan Sistem
+- Node.js versi 18+ atau 20+
+- npm atau pnpm
+
+### 1. Clone & Instalasi Frontend
+```bash
+# Clone repository
+git clone https://github.com/pramacoder/BookingApartSystem.git
+cd BookingApartSystem
+
+# Install dependensi frontend
+npm install
+```
+
+### 2. Konfigurasi Lingkungan Frontend (`.env`)
+Salin file template `.env.example` menjadi `.env`:
+```bash
+cp .env.example .env
+```
+Isi konfigurasi di file `.env`:
 ```env
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+# Supabase PostgreSQL Configuration
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+
+# Midtrans Configuration (Client Key untuk frontend)
+VITE_MIDTRANS_CLIENT_KEY=SB-Mid-client-your_client_key
+VITE_MIDTRANS_IS_PRODUCTION=false
 ```
 
-4. Ganti `your_supabase_project_url` dan `your_supabase_anon_key` dengan nilai dari dashboard Supabase Anda
-
-### Setup Database
-
-1. Buka **SQL Editor** di Supabase Dashboard
-2. Copy seluruh isi file `supabase/migrations/001_initial_schema.sql`
-3. Paste dan jalankan di SQL Editor
-4. Migration akan membuat semua tabel, relasi, indexes, dan triggers yang diperlukan
-
-Lihat `supabase/README.md` untuk detail lebih lengkap tentang struktur database.
-
-## Running the code
-
-Run `npm i` to install the dependencies.
-
-Run `npm run dev` to start the development server.
-
-## Development Status
-
-⚠️ **Project masih dalam tahap development** - Fitur belum lengkap sepenuhnya.
-
-### Fitur yang Sudah Lengkap
-
-- ✅ Public pages (Home, Catalogue, Facilities, Login)
-- ✅ Payment flow (Payment Center, Make Payment, Status Pages)
-- ✅ Resident Dashboard
-- ✅ Admin Dashboard
-- ✅ Supabase integration & database schema
-
-### Fitur yang Masih Perlu Dikembangkan
-
-- 🚧 Authentication integration dengan Supabase
-- 🚧 Resident features (My Unit, Bookings, Complaints, Profile)
-- 🚧 Admin features (Unit Management, Resident Management, dll)
-- 🚧 Payment integration (Midtrans)
-- 🚧 File upload functionality
-
-Lihat `DEVELOPMENT_ROADMAP.md` untuk roadmap lengkap dan `TODO_FEATURES.md` untuk checklist detail.
-
-## Deployment
-
-⚠️ **Deployment disarankan setelah fitur core selesai dikembangkan.**
-
-Pipeline CI/CD sudah disiapkan untuk deployment nanti. Lihat `DEPLOYMENT.md` untuk panduan lengkap.
-
-## Supabase Integration
-
-Project ini menggunakan Supabase untuk:
-
-- Authentication (login, register, logout)
-- Database operations
-- Real-time subscriptions
-
-File konfigurasi Supabase berada di:
-
-- `src/lib/supabase.ts` - Supabase client configuration
-- `src/lib/auth.ts` - Authentication utilities
-
-### Contoh penggunaan:
-
-```typescript
-import { supabase } from "./lib/supabase";
-import { signIn, signUp, signOut } from "./lib/auth";
-
-// Sign in
-const { data, error } = await signIn("email@example.com", "password");
-
-// Sign up
-const { data, error } = await signUp("email@example.com", "password");
-
-// Sign out
-await signOut();
+### 3. Jalankan Frontend (Development Server)
+```bash
+npm run dev
 ```
+Aplikasi frontend akan aktif di: **`http://localhost:3000`**
+
+---
+
+### 4. Menjalankan Backend Midtrans (Opsional untuk Transaksi Riil Sandbox)
+Untuk mengaktifkan popup pembayaran Midtrans Snap riil:
+```bash
+cd backend
+npm install
+cp .env.example .env
+```
+Isi `backend/.env` dengan `MIDTRANS_SERVER_KEY` dan `MIDTRANS_CLIENT_KEY` dari dashboard Midtrans Sandbox Anda, lalu jalankan:
+```bash
+npm run dev
+```
+Backend server akan aktif di: **`http://localhost:5000`**
+
+---
+
+## ⚡ Mode Akses Cepat (1-Click Demo Login)
+
+Jika Anda ingin langsung meninjau seluruh fitur sistem tanpa perlu setup database terlebih dahulu:
+1. Buka halaman login di `http://localhost:3000/login`.
+2. Klik tombol **Demo Admin** untuk masuk sebagai Administrator pengelola gedung.
+3. Klik tombol **Demo Resident** untuk masuk sebagai Penghuni unit apartemen.
+
+---
+
+## 📂 Struktur Direktori
+
+```
+BookingApartSystem/
+├── backend/                   # Backend Express server (Midtrans Snap & Webhook)
+│   ├── .env.example
+│   ├── package.json
+│   ├── README.md
+│   └── server.js
+├── public/                    # Aset statis & logo utama website
+│   └── logo.png
+├── src/
+│   ├── assets/                # Logo & asset gambar
+│   ├── components/            # Komponen UI (Navbar, Footer, Sidebar, Logo, Card)
+│   ├── data/                  # Data mock cadangan offline & helper format
+│   ├── hooks/                 # Custom React hooks (useAuth, useChat)
+│   ├── lib/                   # Utilitas integrasi (Supabase, Auth, Database, Chat, Midtrans, ImageOptimizer)
+│   ├── pages/                 # Halaman utama (Publik, Admin, Resident, Payment)
+│   ├── App.tsx                # Rute aplikasi & proteksi role
+│   └── main.tsx
+├── supabase/
+│   └── migrations/            # File SQL migrasi skema database PostgreSQL
+├── index.html                 # Entry point HTML & konfigurasi favicon
+├── package.json
+├── vite.config.ts             # Konfigurasi Vite (Port 3000)
+└── README.md
+```
+
+---
+
+## 📄 Lisensi
+Proyek ini dibuat untuk kebutuhan manajemen dan sistem reservasi apartemen modern.

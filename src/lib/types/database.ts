@@ -334,3 +334,44 @@ export interface UnitBookingPayment {
   created_at: string;
 }
 
+
+
+export interface ChatRoom {
+  id: string;
+  resident_id?: string;
+  residentId?: string;
+  resident_name?: string;
+  residentName?: string;
+  admin_id?: string | null;
+  adminId?: string | null;
+  admin_name?: string;
+  adminName?: string;
+  last_message?: string;
+  lastMessage?: string;
+  last_message_at?: string | Date;
+  lastMessageAt?: string | Date;
+  unread_count?: number;
+  unreadCount?: number;
+  created_at?: string | Date;
+  createdAt?: string | Date;
+  updated_at?: string | Date;
+  updatedAt?: string | Date;
+}
+
+export interface ChatMessage {
+  id?: string;
+  chat_id?: string;
+  chatId: string;
+  sender_id?: string;
+  senderId: string;
+  sender_name?: string;
+  senderName: string;
+  sender_role?: 'resident' | 'admin';
+  senderRole: 'resident' | 'admin';
+  message: string;
+  read: boolean;
+  read_at?: string | Date;
+  readAt?: string | Date;
+  created_at?: string | Date;
+  timestamp: Date | string;
+}

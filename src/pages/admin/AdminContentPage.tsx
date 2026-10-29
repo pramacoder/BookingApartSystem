@@ -422,7 +422,7 @@ export function AdminContentPage() {
                       <div className="flex items-center gap-4 text-xs text-text-secondary">
                         <div className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
-                          <span>Published: {formatDate(announcement.publish_date)}</span>
+                          <span>Published: {formatDate(announcement.publish_date || (announcement as any).published_at || (announcement as any).created_at)}</span>
                         </div>
                       </div>
                     </div>

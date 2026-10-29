@@ -1,3 +1,4 @@
+import { Logo } from './Logo';
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -43,21 +44,18 @@ export function AdminSidebar() {
       } flex flex-col h-screen sticky top-0`}
     >
       {/* Logo */}
-      <div className="p-6 border-b flex items-center justify-between">
-        {!collapsed && (
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-              <Building2 className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <div className="text-lg text-primary">GreenView</div>
-              <div className="text-xs text-text-secondary">Admin Panel</div>
-            </div>
-          </Link>
+      <div className="p-4 border-b flex items-center justify-between min-h-[73px]">
+        {collapsed ? (
+          <div className="mx-auto">
+            <Logo size="sm" showText={false} to="/" />
+          </div>
+        ) : (
+          <Logo size="sm" subtitle="Admin Panel" to="/" />
         )}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors text-text-secondary"
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           <ChevronLeft className={`w-5 h-5 transition-transform ${collapsed ? 'rotate-180' : ''}`} />
         </button>

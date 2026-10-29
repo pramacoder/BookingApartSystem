@@ -1,3 +1,4 @@
+import { openSnapPayment } from '../../lib/midtrans';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { formatCurrency } from '../../data/mockData';
@@ -8,10 +9,11 @@ import { createNotification } from '../../lib/firestore';
 import type { UnitBooking, Unit } from '../../lib/types/database';
 
 export function MakePayment() {
-  const { id } = useParams();
+  const { id, bookingId } = useParams();
+  const targetId = bookingId || id;
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   
   const [paymentMethod, setPaymentMethod] = useState<'credit' | 'bank' | 'ewallet'>('credit');
   const [promoCode, setPromoCode] = useState('');
@@ -27,21 +29,22 @@ export function MakePayment() {
   const [regularPayment, setRegularPayment] = useState<any>(null);
 
   useEffect(() => {
+    if (authLoading) return;
     if (!user) {
       navigate('/login');
       return;
     }
 
-    if (isUnitBooking && id) {
-      loadUnitBookingPayment(id);
-    } else if (id) {
+    if (isUnitBooking && targetId) {
+      loadUnitBookingPayment(targetId);
+    } else if (targetId) {
       // Load regular payment (existing flow)
-      loadRegularPayment(id);
+      loadRegularPayment(targetId);
     } else {
       setError('Payment ID tidak ditemukan');
       setLoading(false);
     }
-  }, [id, isUnitBooking, user, navigate]);
+  }, [targetId, isUnitBooking, user, authLoading, navigate]);
 
   const loadUnitBookingPayment = async (bookingId: string) => {
     setLoading(true);
@@ -123,6 +126,59 @@ export function MakePayment() {
 
     if (paymentError || !paymentRecord) {
       throw new Error('Gagal membuat record pembayaran');
+    }
+
+    // Coba integrasikan dengan Midtrans Snap jika backend aktif
+    try {
+      const snapRes = await fetch('http://localhost:5000/api/payment/create-snap-token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: unitBooking.booking_number,
+          amount: unitBooking.total_amount,
+          customerName: user.user_metadata?.full_name || 'Resident',
+          customerEmail: user.email,
+          description: 'Booking Unit ' + (unit?.unit_number || ''),
+        }),
+      });
+
+      if (snapRes.ok) {
+        const { token } = await snapRes.json();
+        if (token) {
+          await openSnapPayment(token, {
+            onSuccess: async () => {
+              await updateUnitBooking(unitBooking.id, {
+                status: 'confirmed',
+                payment_status: 'paid',
+                confirmed_at: new Date().toISOString(),
+              });
+              await updateResident(residentId, {
+                unit_id: unitBooking.unit_id,
+                status: 'active',
+                unit_booking_id: unitBooking.id,
+                contract_start: unitBooking.start_date,
+                contract_end: unitBooking.end_date,
+                move_in_date: new Date().toISOString().split('T')[0],
+              });
+              await updateUnit(unitBooking.unit_id, { status: 'occupied' });
+              await updatePaymentStatus(paymentRecord.id, 'paid', new Date().toISOString().split('T')[0]);
+              navigate('/payment/success?order_id=' + unitBooking.booking_number + '&type=unit_booking');
+            },
+            onPending: () => {
+              navigate('/payment/pending?order_id=' + unitBooking.booking_number);
+            },
+            onError: () => {
+              navigate('/payment/failed?order_id=' + unitBooking.booking_number);
+            },
+            onClose: () => {
+              setIsProcessing(false);
+            },
+          });
+          return;
+        }
+      }
+    } catch (e) {
+      // Backend Snap belum aktif, gunakan simulasi sandbox langsung
     }
 
     // Simulate payment processing (in production, integrate with Midtrans)

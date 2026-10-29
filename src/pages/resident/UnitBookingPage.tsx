@@ -10,7 +10,7 @@ import { formatCurrency } from '../../data/mockData';
 export function UnitBookingPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const unitId = searchParams.get('unit_id');
 
   const [unit, setUnit] = useState<Unit | null>(null);
@@ -33,7 +33,7 @@ export function UnitBookingPage() {
     }
 
     loadUnitData();
-  }, [unitId, user, navigate]);
+  }, [unitId, user, authLoading, navigate]);
 
   const loadUnitData = async () => {
     if (!unitId) return;

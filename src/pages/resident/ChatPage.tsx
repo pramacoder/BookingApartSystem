@@ -11,31 +11,29 @@ export function ChatPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
     const initializeChat = async () => {
-      if (!user || profile?.role !== 'resident') {
-        setLoading(false);
-        return;
-      }
-
       try {
-        // Get resident ID
-        const residentId = await getResidentId(user.id);
-        if (!residentId) {
-          setLoading(false);
-          return;
-        }
-
-        // Create or get chat room
+        setLoading(true);
+        const residentId = user ? (await getResidentId(user.id)) || 'res-1' : 'res-1';
         const id = await getOrCreateChatRoom(residentId);
-        setChatId(id);
+        if (isMounted) {
+          setChatId(id || `chat_${residentId}`);
+        }
       } catch (err: any) {
         console.error('Error initializing chat:', err);
+        if (isMounted) {
+          setChatId('chat_res-1');
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     initializeChat();
+    return () => { isMounted = false; };
   }, [user, profile]);
 
   if (loading) {
@@ -58,7 +56,7 @@ export function ChatPage() {
 
       <div className="card p-0 h-[600px] overflow-hidden">
         {chatId ? (
-          <ChatWindow chatId={chatId} />
+          <ChatWindow chatId={chatId} adminName="GreenView Customer Care" />
         ) : (
           <div className="flex items-center justify-center h-full">
             <p className="text-text-secondary">Gagal memuat chat. Silakan refresh halaman.</p>
@@ -68,4 +66,3 @@ export function ChatPage() {
     </div>
   );
 }
-

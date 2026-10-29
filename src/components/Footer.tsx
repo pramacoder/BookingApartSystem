@@ -1,3 +1,4 @@
+import { Logo } from './Logo';
 import { Link } from 'react-router-dom';
 import { Building2, Mail, Phone, MapPin, Facebook, Instagram, Twitter, Linkedin } from 'lucide-react';
 
@@ -8,14 +9,8 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand Section */}
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center">
-                <Building2 className="w-7 h-7 text-primary" />
-              </div>
-              <div>
-                <div className="text-xl">GreenView</div>
-                <div className="text-sm text-tertiary">Apartment</div>
-              </div>
+            <div className="mb-4">
+              <Logo size="md" variant="footer" subtitle="Apartment" to="/" />
             </div>
             <p className="text-tertiary text-sm mb-4">
               Modern living space dengan fasilitas lengkap di lokasi strategis Jakarta Selatan.

@@ -248,7 +248,7 @@ export function ResidentDashboard() {
             <div className="w-12 h-12 bg-info/10 rounded-xl flex items-center justify-center">
               <MessageSquare className="w-6 h-6 text-info" />
             </div>
-            {openTickets > 0 && <span className="badge badge-info">{openTickets}</span>}
+            {openTicketsCount > 0 && <span className="badge badge-info">{openTicketsCount}</span>}
           </div>
           <p className="text-sm text-text-secondary mb-1">Open Tickets</p>
           <h3 className="text-primary mb-2">{openTicketsCount}</h3>

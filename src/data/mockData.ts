@@ -244,8 +244,8 @@ export const mockResidents: Resident[] = [
     email: 'budi.santoso@email.com',
     phone: '081234567890',
     unitNumber: 'C-1501',
-    contractStart: '01/01/2024',
-    contractEnd: '31/12/2024',
+    contractStart: '2024-01-01',
+    contractEnd: '2024-12-31',
     status: 'active',
     avatar: 'https://ui-avatars.com/api/?name=Budi+Santoso&background=164A41&color=fff'
   },
@@ -255,8 +255,8 @@ export const mockResidents: Resident[] = [
     email: 'siti.nur@email.com',
     phone: '081234567891',
     unitNumber: 'B-0807',
-    contractStart: '15/03/2024',
-    contractEnd: '14/03/2025',
+    contractStart: '2024-03-15',
+    contractEnd: '2025-03-14',
     status: 'active',
     avatar: 'https://ui-avatars.com/api/?name=Siti+Nurhaliza&background=4D774E&color=fff'
   }
@@ -272,9 +272,9 @@ export const mockPayments: Payment[] = [
     unitNumber: 'C-1501',
     amount: 8500000,
     description: 'Sewa Bulan Desember 2024',
-    dueDate: '05/12/2024',
+    dueDate: '2024-12-05',
     status: 'paid',
-    paymentDate: '03/12/2024',
+    paymentDate: '2024-12-03',
     paymentMethod: 'Credit Card'
   },
   {
@@ -285,7 +285,7 @@ export const mockPayments: Payment[] = [
     unitNumber: 'C-1501',
     amount: 8500000,
     description: 'Sewa Bulan Januari 2025',
-    dueDate: '05/01/2025',
+    dueDate: '2025-01-05',
     status: 'pending'
   },
   {
@@ -296,7 +296,7 @@ export const mockPayments: Payment[] = [
     unitNumber: 'B-0807',
     amount: 6000000,
     description: 'Sewa Bulan Desember 2024',
-    dueDate: '10/12/2024',
+    dueDate: '2024-12-10',
     status: 'overdue'
   }
 ];
@@ -309,7 +309,7 @@ export const mockBookings: Booking[] = [
     facilityName: 'Co-working Space',
     residentId: '1',
     residentName: 'Budi Santoso',
-    date: '15/12/2024',
+    date: '2024-12-15',
     timeSlot: '09:00 - 12:00',
     duration: 3,
     guests: 5,
@@ -322,7 +322,7 @@ export const mockBookings: Booking[] = [
     facilityName: 'Function Hall',
     residentId: '1',
     residentName: 'Budi Santoso',
-    date: '20/12/2024',
+    date: '2024-12-20',
     timeSlot: '18:00 - 22:00',
     duration: 4,
     guests: 30,
@@ -339,7 +339,7 @@ export const mockAnnouncements: Announcement[] = [
     category: 'Maintenance',
     excerpt: 'Lift Tower A akan menjalani maintenance rutin pada tanggal 15 Desember 2024.',
     content: 'Kepada seluruh penghuni Tower A, kami informasikan bahwa lift akan menjalani pemeliharaan rutin pada tanggal 15 Desember 2024 pukul 08:00 - 17:00. Mohon gunakan lift cadangan atau tangga. Terima kasih atas pengertiannya.',
-    date: '10/12/2024',
+    date: '2024-12-10',
     isRead: false
   },
   {
@@ -348,7 +348,7 @@ export const mockAnnouncements: Announcement[] = [
     category: 'Events',
     excerpt: 'Join us untuk perayaan tahun baru di Function Hall!',
     content: 'Kami mengundang seluruh penghuni untuk merayakan tahun baru bersama di Function Hall. Acara dimulai pukul 20:00. Akan ada live music, dinner, dan fireworks! RSVP sebelum 20 Desember.',
-    date: '08/12/2024',
+    date: '2024-12-08',
     isRead: true
   },
   {
@@ -357,7 +357,7 @@ export const mockAnnouncements: Announcement[] = [
     category: 'Important',
     excerpt: 'Jadwal operasional kolam renang berubah mulai 1 Januari 2025.',
     content: 'Mulai 1 Januari 2025, kolam renang akan beroperasi dari pukul 06:00 - 21:00 (sebelumnya 06:00 - 20:00). Perubahan ini untuk memberikan waktu lebih kepada penghuni.',
-    date: '07/12/2024',
+    date: '2024-12-07',
     isRead: false
   }
 ];
@@ -375,8 +375,8 @@ export const mockTickets: Ticket[] = [
     subject: 'AC Tidak Dingin',
     description: 'AC di kamar tidur tidak dingin sejak 3 hari yang lalu. Sudah dibersihkan filter tapi tetap tidak dingin.',
     status: 'In Progress',
-    createdDate: '08/12/2024',
-    lastUpdate: '09/12/2024'
+    createdDate: '2024-12-08',
+    lastUpdate: '2024-12-09'
   },
   {
     id: '2',
@@ -389,8 +389,8 @@ export const mockTickets: Ticket[] = [
     subject: 'Kartu Akses Tidak Berfungsi',
     description: 'Kartu akses untuk gym tidak bisa tap. Mohon dibantu untuk penggantian.',
     status: 'Open',
-    createdDate: '10/12/2024',
-    lastUpdate: '10/12/2024'
+    createdDate: '2024-12-10',
+    lastUpdate: '2024-12-10'
   }
 ];
 

@@ -6,15 +6,29 @@ import {
   onAuthStateChange,
   getUserProfile,
   getUserRole,
+  getDemoAuth,
   UserProfile,
 } from '../lib/auth';
 
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [role, setRole] = useState<'admin' | 'resident' | 'guest'>('guest');
-  const [loading, setLoading] = useState(true);
+  const initialDemo = typeof window !== 'undefined' ? getDemoAuth() : null;
+
+  const [user, setUser] = useState<User | null>(initialDemo?.user ?? null);
+  const [session, setSession] = useState<Session | null>(
+    initialDemo
+      ? ({
+          access_token: 'demo_token',
+          token_type: 'bearer',
+          expires_in: 3600,
+          expires_at: Math.floor(Date.now() / 1000) + 3600,
+          refresh_token: 'demo_refresh',
+          user: initialDemo.user,
+        } as Session)
+      : null
+  );
+  const [profile, setProfile] = useState<UserProfile | null>(initialDemo?.profile ?? null);
+  const [role, setRole] = useState<'admin' | 'resident' | 'guest'>(initialDemo?.role ?? 'guest');
+  const [loading, setLoading] = useState(!initialDemo);
 
   useEffect(() => {
     // Get initial session
@@ -56,7 +70,7 @@ export function useAuth() {
     });
 
     return () => {
-      subscription.unsubscribe();
+      subscription?.unsubscribe();
     };
   }, []);
 
@@ -71,4 +85,3 @@ export function useAuth() {
     isResident: role === 'resident',
   };
 }
-

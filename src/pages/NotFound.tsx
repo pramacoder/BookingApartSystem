@@ -1,3 +1,4 @@
+import { Logo } from '../components/Logo';
 import { Link } from 'react-router-dom';
 import { Home, Search, ArrowLeft, Building2 } from 'lucide-react';
 
@@ -6,14 +7,8 @@ export function NotFound() {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5 flex items-center justify-center p-4">
       <div className="max-w-2xl w-full text-center">
         {/* Logo */}
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center">
-            <Building2 className="w-10 h-10 text-white" />
-          </div>
-          <div className="text-left">
-            <div className="text-2xl text-primary">GreenView</div>
-            <div className="text-sm text-text-secondary">Apartment</div>
-          </div>
+        <div className="flex items-center justify-center mb-8">
+          <Logo size="lg" subtitle="Apartment" to="/" />
         </div>
 
         {/* 404 Illustration */}
